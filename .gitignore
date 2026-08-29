@@ -47,3 +47,7 @@ Thumbs.db
 next-env.d.ts
 tsconfig.tsbuildinfo
 *.tsbuildinfo
+
+# uploaded assets (keep the dir structure)
+public/uploads/*
+!public/uploads/.gitkeep

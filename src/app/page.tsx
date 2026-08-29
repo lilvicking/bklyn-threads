@@ -1,12 +1,18 @@
 import { prisma } from "@/lib/prisma";
 import Storefront from "@/components/storefront/Storefront";
 
-export const revalidate = 60; // ISR: refresh catalog at most every 60s
+// The catalog is managed live via /admin, so render on demand rather than
+// statically building against the DB (which also lets `next build` run
+// without a live database).
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const products = await prisma.product.findMany({
     where: { status: "ACTIVE" },
-    include: { variants: { orderBy: { priceAdj: "asc" } } },
+    include: {
+      images: { orderBy: { position: "asc" } },
+      variants: { orderBy: { priceAdj: "asc" } },
+    },
     orderBy: { createdAt: "desc" },
   });
 

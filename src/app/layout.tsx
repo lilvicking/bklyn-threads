@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter as FontBody } from "next/font/google";
 import { VT323 as FontDisplay } from "next/font/google";
 import "./globals.css";
+import { CartProvider } from "@/contexts/CartContext";
+import ShoppingCart from "@/components/cart/ShoppingCart";
 
 // VT323 gives the retro terminal/tv text feel; Inter for body copy.
 const fontBody = FontBody({ subsets: ["latin"], variable: "--font-body" });
@@ -24,7 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fontBody.variable} ${fontDisplay.variable}`}>
       <body className="min-h-screen bg-obsidian text-bone-white antialiased">
-        {children}
+        <CartProvider>
+          {children}
+          <ShoppingCart />
+        </CartProvider>
       </body>
     </html>
   );

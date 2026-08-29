@@ -27,6 +27,14 @@ enum ProductStatus {
   ARCHIVED
 }
 
+// Inventory visibility state chosen by the merchant.
+enum InventoryStatus {
+  IN_STOCK
+  OUT_OF_STOCK
+  PRE_ORDER
+  HIDDEN_FROM_STORE
+}
+
 model Collection {
   id          String   @id @default(cuid())
   name        String
@@ -38,20 +46,24 @@ model Collection {
 }
 
 model Product {
-  id          String        @id @default(cuid())
-  name        String
-  slug        String        @unique
-  description String?
-  category    Category
-  status      ProductStatus @default(DRAFT)
-  basePrice   Int // cents, tax-exclusive
-  images      ProductImage[]
-  variants    Variant[]
-  collection  Collection?   @relation(fields: [collectionId], references: [id])
-  collectionId String?
-  orderItems  OrderItem[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id              String          @id @default(cuid())
+  name            String
+  slug            String          @unique
+  description     String?
+  category        Category
+  status          ProductStatus   @default(DRAFT)
+  inventoryStatus InventoryStatus @default(IN_STOCK)
+  basePrice       Int // cents, tax-exclusive
+  salePrice       Int? // cents; when present, the lower of the two is shown/charged
+  sku             String? // optional top-level SKU (used when no variants are defined)
+  featured        Boolean         @default(false)
+  images          ProductImage[]
+  variants        Variant[]
+  collection      Collection?     @relation(fields: [collectionId], references: [id])
+  collectionId    String?
+  orderItems      OrderItem[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model ProductImage {
@@ -59,6 +71,7 @@ model ProductImage {
   url       String
   alt       String?
   position  Int     @default(0) // ordering within the gallery
+  featured  Boolean @default(false) // primary/hero image
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId String
 }
@@ -100,29 +113,32 @@ enum Role {
 // ------------------------------------------------------------
 enum OrderStatus {
   PENDING
-  UNFULFILLED
+  PROCESSING
   SHIPPED
   DELIVERED
   CANCELLED
+  REFUNDED
 }
 
 model Order {
-  id           String        @id @default(cuid())
-  status       OrderStatus   @default(UNFULFILLED)
-  stripeId     String?       @unique
-  subtotal     Int
-  shipping     Int           @default(0)
-  total        Int
-  items        OrderItem[]
-  user         User?         @relation(fields: [userId], references: [id])
-  userId       String?
-  shippingName String?
+  id            String        @id @default(cuid())
+  status        OrderStatus   @default(PENDING)
+  stripeId      String?       @unique
+  subtotal      Int
+  shipping      Int           @default(0)
+  total         Int
+  trackingNumber String?
+  notes         String?
+  items         OrderItem[]
+  user          User?         @relation(fields: [userId], references: [id])
+  userId        String?
+  shippingName  String?
   shippingLine1 String?
-  shippingCity String?
+  shippingCity  String?
   shippingPostal String?
   shippingCountry String?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model OrderItem {
@@ -135,4 +151,45 @@ model OrderItem {
   variantId  String?
   unitPrice  Int
   quantity   Int
+}
+
+// ------------------------------------------------------------
+// Store settings (singleton row, id = 1)
+// ------------------------------------------------------------
+model SiteSettings {
+  id            Int      @id @default(1)
+
+  // --- SEO ---
+  siteTitle       String  @default("BKLYN THREADS")
+  metaDescription String @default("Retro 90s Brooklyn streetwear. Tees, outerwear, headwear, footwear & accessories.")
+  ogImageUrl      String?
+
+  // --- Hero video ---
+  heroVideoUrl      String?
+  heroVideoAutoplay Boolean @default(false)
+  heroVideoMuted    Boolean @default(true)
+
+  // --- Theme / branding ---
+  headerBgColor       String @default("#0d0d0d")
+  footerBgColor       String @default("#0d0d0d")
+  primaryButtonColor  String @default("#c41e3a")
+  accentColor         String @default("#f5c518")
+  textColor           String @default("#f4f1ea")
+  backgroundType      String @default("solid_color") // solid_color | gradient | image
+  backgroundValue     String @default("#0d0d0d")     // hex for solid; css fallback for gradient
+  backgroundImageUrl  String?
+  headingFont         String @default("VT323")
+  bodyFont            String @default("Inter")
+
+  // --- Shipping ---
+  shippingFlatRate          Int    @default(500) // cents
+  freeShippingThreshold     Int    @default(6000) // cents; subtotal >= threshold => no shipping
+  supportedRegions          String @default("US,CA,GB,AU,DE,FR,JP")
+
+  // --- Policies ---
+  termsOfService String?
+  privacyPolicy  String?
+  refundPolicy   String?
+
+  updatedAt DateTime @updatedAt
 }

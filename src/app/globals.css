@@ -60,3 +60,24 @@ a {
   transform: translateY(-10px) rotate(2deg) scale(1.02);
   rotate: 1.5deg;
 }
+
+/* ---- Admin: small square icon buttons ---- */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgba(224, 220, 210, 0.2);
+  background: rgba(224, 220, 210, 0.05);
+  color: #adc4ce;
+  transition: background 0.15s ease, transform 0.1s ease;
+  cursor: pointer;
+}
+.icon-btn:hover {
+  background: rgba(224, 220, 210, 0.15);
+}
+.icon-btn:active {
+  transform: scale(0.94);
+}

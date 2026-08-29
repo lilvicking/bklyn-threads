@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import ProductCard from "./ProductCard";
-import { categoryLabels } from "@/types";
+import { categoryLabels, type Category } from "@/types";
 import type { ProductCardData } from "./ProductCard";
 
 const ALL = "ALL" as const;
@@ -29,7 +29,7 @@ export default function Storefront({
     <div>
       {/* Category filter tabs */}
       <div className="mb-6 flex flex-wrap gap-2" role="tablist">
-        {["ALL", ...categories].map((c) => (
+        {[ALL, ...categories].map((c) => (
           <button
             key={c}
             role="tab"

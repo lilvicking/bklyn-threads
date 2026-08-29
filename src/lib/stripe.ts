@@ -9,6 +9,6 @@ export function createServerClient(): Stripe {
   if (!key) {
     throw new Error("STRIPE_SECRET_KEY is not set.");
   }
-  _client = new Stripe(key, { apiVersion: "2024-11-20.acacia" });
+  _client = new Stripe(key, { apiVersion: "2025-02-24.acacia" });
   return _client;
 }
