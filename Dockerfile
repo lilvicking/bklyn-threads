@@ -1,4 +1,7 @@
 # Syntax: https://docs.docker.com/build/buildkit/
+# NOTE: using Debian-based node:22-slim (NOT alpine) because Prisma's
+# query engine ships glibc builds that require libssl.so.1.1, which is
+# not present on Alpine (musl) images.
 # ---- build stage: install deps & produce standalone Next.js build ----
 FROM node:22-slim AS build
 WORKDIR /app
