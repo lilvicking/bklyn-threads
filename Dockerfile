@@ -1,6 +1,6 @@
 # Syntax: https://docs.docker.com/build/buildkit/
 # ---- build stage: install deps & produce standalone Next.js build ----
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 WORKDIR /app
 
 # Install only the prod deps first so layer caching stays fast.
@@ -14,7 +14,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # ---- runtime stage ----
-FROM node:22-alpine
+FROM node:22-slim
 WORKDIR /app
 ENV NODE_ENV=production
 
