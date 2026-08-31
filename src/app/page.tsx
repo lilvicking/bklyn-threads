@@ -7,7 +7,7 @@ import Storefront from "@/components/storefront/Storefront";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const products = await prisma.product.findMany({
+  const dbProducts = await prisma.product.findMany({
     where: { status: "ACTIVE" },
     include: {
       images: { orderBy: { position: "asc" } },
@@ -15,6 +15,15 @@ export default async function HomePage() {
     },
     orderBy: { createdAt: "desc" },
   });
+
+  const products = dbProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    category: p.category,
+    basePrice: p.basePrice,
+    images: p.images.map((img) => ({ url: img.url, alt: img.alt ?? null })),
+  }));
 
   return (
     <main className="relative">
