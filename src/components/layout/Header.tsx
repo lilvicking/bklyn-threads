@@ -20,7 +20,18 @@ const DROPDOWN_GIFS: Record<string, string[]> = {
 
 export default function Header() {
   return (
-    <header className="w-full bg-obsidian text-bone-white shadow-[0_2px_0_0_rgba(245,197,24,0.2)]">
+        <header className="w-full bg-obsidian text-bone-white shadow-[0_2px_0_0_rgba(245,197,24,0.2)]">
+      {/* Contact strip */}
+      <div className="mx-auto max-w-7xl px-4 text-[10px] tracking-widest text-silver-gray">
+        <div className="flex h-7 items-center justify-between">
+          <span>WELCOME TO THE CULTURE • EST. 2026</span>
+          <div className="flex items-center gap-3">
+            <span>📞 +1 (314) 555-0000</span>
+            <Link href="/login" className="hover:text-amber">Sign In / Register</Link>
+          </div>
+        </div>
+      </div>
+
       {/* Scrolling marquee top bar */}
       <div className="relative isolate overflow-hidden whitespace-nowrap bg-cardinal py-1.5 text-[10px] font-display tracking-[0.25em] text-bone-white">
         <div className="animate-marquee">
@@ -70,7 +81,7 @@ function NavItem({
       </Link>
 
       {/* Dropdown of embedded 2000s clip GIFs (placeholder images for now). */}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 hidden min-w-[260px] flex-wrap gap-2 rounded-md bg-obsidian p-3 shadow-2xl ring-1 ring-silver-gray/30 group-hover:flex">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 hidden min-w-[270px] flex-wrap gap-2 rounded-xl bg-obsidian p-3 shadow-2xl ring-1 ring-silver-gray/30 group-hover:flex">
         {gifs.map((src, i) => (
           <img
             key={i}

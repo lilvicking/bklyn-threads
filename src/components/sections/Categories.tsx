@@ -41,13 +41,13 @@ const BLOCKS: Block[] = [
 export default function Categories() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
-      <h2 className="font-display text-2xl text-silver-gray">
+            <h2 className="font-display text-3xl text-bone-white">
         Shop Collections
       </h2>
-      <p className="mt-1 text-xs text-silver-gray/70">
-        Hover the blocks to see the drops come alive.
+      <p className="mt-2 max-w-xl text-sm text-silver-gray/70">
+        Hover the blocks to preview the drops in motion.
       </p>
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+      <div className="mt-8 grid grid-cols-1 gap-8 sm:grid-cols-3">
         {BLOCKS.map((b) => (
           <CategoryCard key={b.title} block={b} />
         ))}
@@ -58,26 +58,29 @@ export default function Categories() {
 
 function CategoryCard({ block }: { block: Block }) {
   const [hovered, setHovered] = useState(false);
-  return (
+    return (
     <Link
       href={block.href}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className="group relative block"
     >
-      <img
-        src={hovered ? block.hoverImg : block.staticImg}
-        alt={block.title}
-        className="h-96 w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
-        loading="lazy"
-      />
-      <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/70 via-black/20 to-transparent p-4">
-        <span className="text-xs uppercase tracking-widest text-amber">
-          {block.subtitle}
+      <div className="overflow-hidden rounded-xl shadow-xl ring-1 ring-silver-gray/20">
+        <img
+          src={hovered ? block.hoverImg : block.staticImg}
+          alt={block.title}
+          className="aspect-square w-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+        <span className="badge absolute left-3 top-3 bg-amber text-obsidian">
+          NEW DROP
         </span>
-      </div>
-      <div className="absolute bottom-4 left-4">
-        <span className="font-display text-lg text-bone-white">{block.title}</span>
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent p-4">
+          <h3 className="font-display text-lg text-bone-white">{block.title}</h3>
+          <p className="text-xs uppercase tracking-widest text-amber">
+            {block.subtitle}
+          </p>
+        </div>
       </div>
     </Link>
   );

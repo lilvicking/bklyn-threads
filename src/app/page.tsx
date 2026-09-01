@@ -27,7 +27,9 @@ export default async function HomePage() {
     name: p.name,
     slug: p.slug,
     category: p.category,
-    basePrice: p.basePrice,
+        basePrice: p.basePrice,
+    salePrice: p.salePrice ?? null,
+    featured: p.featured,
     images: p.images.map((img) => ({ url: img.url, alt: img.alt ?? null })),
   }));
 

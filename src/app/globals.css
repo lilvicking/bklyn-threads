@@ -20,19 +20,55 @@ a {
   text-decoration: none;
 }
 
-/* ---- Storefront grid, variable-height product tiles ---- */
+/* ---- Storefront grid: larger, airy, modern ---- */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.25rem;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
 }
 
+/* ---- Modern card lift (smooth, no jarring rotation) ---- */
 .hanger-card {
-  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), rotate 0.25s;
+  border-radius: 0.75rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .hanger-card:hover {
-  transform: translateY(-10px) rotate(2deg) scale(1.02);
-  rotate: 1.5deg;
+  transform: translateY(-6px) scale(1.03);
+}
+.hanger-card:focus-visible {
+  outline: 2px solid #f5c518;
+  outline-offset: 2px;
+}
+
+/* ---- Accent badges (NEW / SALE) ---- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  padding: 0.15rem 0.5rem;
+  font-family: var(--font-display);
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ---- Culture torn-paper edge ---- */
+.torn {
+  clip-path: polygon(1% 0%, 99% 0%, 97% 100%, 3% 100%);
+}
+
+/* ---- Optional CRT scanline overlay (used on Hero) ---- */
+.crt-overlay {
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  mix-blend-mode: soft-light;
 }
 
 /* ---- Admin: small square icon buttons ---- */
