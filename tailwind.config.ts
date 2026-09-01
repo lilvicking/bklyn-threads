@@ -37,10 +37,11 @@ const config: Config = {
           "100%": { transform: "translateX(-100%)" },
         },
       },
-      animation: {
+            animation: {
         scanline: "scanline 6s linear infinite",
         "crt-flicker": "crt-flicker 4s infinite",
         ticker: "ticker 22s linear infinite",
+        marquee: "ticker 7s linear infinite",
       },
     },
   },

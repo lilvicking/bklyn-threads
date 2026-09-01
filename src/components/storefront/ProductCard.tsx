@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,15 +13,18 @@ export type ProductCardData = {
   category: Category;
   basePrice: number;
   images: { url: string; alt?: string | null }[];
+  /** Optional "model stepping in" video that plays on hover (muted so browsers allow autoplay). */
+  videoUrl?: string | null;
 };
 
 export default function ProductCard({ product }: { product: ProductCardData }) {
   const image = product.images[0];
+  const hasVideo = Boolean(product.videoUrl);
   return (
     <motion.article
       whileHover={{ y: -10, rotate: 2, scale: 1.02 }}
       transition={{ type: "spring", stiffness: 260, damping: 20 }}
-      className="hanger-card group cursor-pointer overflow-hidden border border-silver-gray/20 bg-obsidian"
+      className="hanger-card group relative cursor-pointer overflow-hidden border border-silver-gray/20 bg-obsidian"
     >
       <Link href={`/product/${product.slug}`} className="block">
         <div className="relative aspect-[3/4] w-full bg-black">
@@ -29,6 +34,18 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
             <div className="flex h-full w-full items-center justify-center font-display text-amber">
               BKLYN
             </div>
+          )}
+
+          {/* Hover-to-play video: muted + playsInline keeps autoplay policy happy. */}
+          {hasVideo && (
+            <video
+              src={product.videoUrl!}
+              autoPlay
+              muted
+              playsInline
+              loop
+              className="absolute inset-0 hidden h-full w-full object-cover group-hover:block"
+            />
           )}
         </div>
         <div className="p-3">
@@ -40,5 +57,5 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
         </div>
       </Link>
     </motion.article>
-  );
+    );
 }
