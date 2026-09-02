@@ -1,30 +1,30 @@
-// Seed script: `npm run db:seed`
-import { PrismaClient, Category, Role } from "@prisma/client";
-import bcrypt from "bcryptjs";
+// Seed script — plain CommonJS so it runs in the production image with
+// `node` (no tsx / prisma CLI required). Run via: node prisma/seed.cjs
+//
+// ALWAYS upserts the ADMIN account so login credentials are guaranteed present
+// on every boot. Demo catalog rows are only created when SEED_DEMO=true.
+const { PrismaClient, Role } = require("@prisma/client");
+const bcrypt = require("bcryptjs");
 
 const prisma = new PrismaClient();
 
 async function main() {
-  // Admin user — upserted on EVERY boot so the login credentials are always
-  // present and in sync, even on freshly-provisioned databases.
-  // Override via ADMIN_EMAIL / ADMIN_PASSWORD env (Railway); the committed
-  // fallbacks below are the working credentials for this storefront.
+  // Admin user. Override via ADMIN_EMAIL / ADMIN_PASSWORD env; the committed
+  // fallbacks are the working credentials for this storefront.
   const adminEmail = process.env.ADMIN_EMAIL ?? "admin@jayfab.org";
   const adminPass = process.env.ADMIN_PASSWORD ?? "Novejfab1224$";
   const hashed = await bcrypt.hash(adminPass, 10);
 
   await prisma.user.upsert({
     where: { email: adminEmail },
-    // Always re-hash so the password stays in sync with ADMIN_PASSWORD /
-    // the fallback above, even if a previous deploy used an older value.
+    // Always re-hash so the password stays in sync on every boot.
     update: { passwordHash: hashed },
     create: { email: adminEmail, passwordHash: hashed, role: Role.ADMIN },
   });
 
-  // Demo catalog is optional — only created when SEED_DEMO=true so a live
-  // store isn't seeded with placeholder products on every boot.
+  // Demo catalog is optional — only created when SEED_DEMO=true.
   if (process.env.SEED_DEMO !== "true") {
-    console.log("Seed complete. Admin:", adminEmail);
+    console.log("[seed] admin upserted:", adminEmail);
     return;
   }
 
@@ -42,7 +42,7 @@ async function main() {
     {
       name: "Obsidian Box Tee",
       slug: "obsidian-box-tee",
-      category: Category.TEES as Category,
+      category: "TEES",
       basePrice: 3200,
       variants: [
         { size: "S", sku: "OBS-TEE-S", stock: 12 },
@@ -53,7 +53,7 @@ async function main() {
     {
       name: "Cardinal Snapback",
       slug: "cardinal-snapback",
-      category: Category.HEADWEAR as Category,
+      category: "HEADWEAR",
       basePrice: 2800,
       variants: [{ sku: "CARD-HAT-OS", size: "OS", color: "Red", stock: 25 }],
     },
@@ -67,22 +67,20 @@ async function main() {
         name: p.name,
         slug: p.slug,
         category: p.category,
-        status: "ACTIVE" as const,
+        status: "ACTIVE",
         basePrice: p.basePrice,
         collectionId: collection.id,
-        variants: {
-          create: p.variants,
-        },
+        variants: { create: p.variants },
       },
     });
   }
 
-  console.log("Seed complete. Admin:", adminEmail);
+  console.log("[seed] complete. Admin:", adminEmail);
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("[seed] error:", e);
     process.exit(1);
   })
   .finally(async () => {
