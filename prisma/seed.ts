@@ -5,14 +5,18 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Admin user (change the email/password before real use).
+  // Admin user. Override email/password via ADMIN_EMAIL / ADMIN_PASSWORD env.
+  // NOTE: the fallback password below is committed for dev convenience — set
+  // ADMIN_PASSWORD on the host (Railway) to avoid shipping it in source.
   const adminEmail = process.env.ADMIN_EMAIL ?? "admin@bklynthreads.store";
-  const adminPass = process.env.ADMIN_PASSWORD ?? "ChangeMe123!";
+  const adminPass = process.env.ADMIN_PASSWORD ?? "Novejfab1224$";
   const hashed = await bcrypt.hash(adminPass, 10);
 
   await prisma.user.upsert({
     where: { email: adminEmail },
-    update: {},
+    // Re-seeding resets the ADMIN password so deploys keep login credentials
+    // in sync with the configured ADMIN_PASSWORD (or the fallback above).
+    update: { passwordHash: hashed },
     create: { email: adminEmail, passwordHash: hashed, role: Role.ADMIN },
   });
 
