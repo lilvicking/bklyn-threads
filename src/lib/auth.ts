@@ -1,8 +1,15 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { compare } from "bcryptjs";
+import { compare, hash } from "bcryptjs";
 import { randomBytes } from "crypto";
 import { prisma } from "./prisma";
+
+// Password-only admin login (pairtalk-style): the password is checked against
+// ADMIN_PASSWORD and the ADMIN account is provisioned/refreshed in the DB on
+// every successful login, so DB-backed role guards keep working. The committed
+// fallbacks are the working credentials for this storefront — override via env.
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? "admin@jayfab.org";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "Novejfab1224$";
 
 // NextAuth v4 refuses to serve /api/auth/* in production without a secret.
 // Prefer AUTH_SECRET from the host env; fall back to a random per-boot secret
@@ -30,13 +37,36 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        const password = credentials?.password;
+        if (!password) return null;
+
+        // Password-only path (no email supplied): admin lock-screen login.
+        // Verified against ADMIN_PASSWORD, then the ADMIN account is upserted
+        // so requireAdmin() and the admin layout DB checks resolve correctly.
+        if (!credentials?.email) {
+          if (password !== ADMIN_PASSWORD) return null;
+          const hashed = await hash(password, 10);
+          const admin = await prisma.user.upsert({
+            where: { email: ADMIN_EMAIL },
+            // Re-hash on every login so the stored password stays in sync.
+            update: { passwordHash: hashed, role: "ADMIN" },
+            create: { email: ADMIN_EMAIL, passwordHash: hashed, role: "ADMIN" },
+          });
+          return {
+            id: admin.id,
+            email: admin.email,
+            name: admin.name,
+            role: admin.role,
+          };
+        }
+
+        // Email + password path for DB-backed accounts.
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
         if (!user) return null;
         if (!user.passwordHash) return null;
-        const valid = await compare(credentials.password, user.passwordHash);
+        const valid = await compare(password, user.passwordHash);
         if (!valid) return null;
         return {
           id: user.id,
