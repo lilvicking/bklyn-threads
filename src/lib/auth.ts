@@ -1,7 +1,24 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
+import { randomBytes } from "crypto";
 import { prisma } from "./prisma";
+
+// NextAuth v4 refuses to serve /api/auth/* in production without a secret.
+// Prefer AUTH_SECRET from the host env; fall back to a random per-boot secret
+// so admin login keeps working on un-configured deploys. Configure AUTH_SECRET
+// on Railway for stable sessions across restarts.
+const SESSION_SECRET =
+  process.env.AUTH_SECRET ??
+  process.env.NEXTAUTH_SECRET ??
+  (() => {
+    if (process.env.NODE_ENV === "production") {
+      console.warn(
+        "[auth] AUTH_SECRET not set — using a random per-boot secret. Set AUTH_SECRET on the host for stable sessions."
+      );
+    }
+    return randomBytes(32).toString("base64");
+  })();
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
@@ -47,5 +64,5 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: { signIn: "/login" },
-  secret: process.env.AUTH_SECRET,
+  secret: SESSION_SECRET,
 };
